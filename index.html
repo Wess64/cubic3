@@ -239,18 +239,22 @@
 </head>
 <body>
   <div id="editor">
-    <textarea id="layer1" oninput="updateCube()">eeeee|eeeee|eeeee|eeeee|eeeee</textarea>
+    <details>
+  <summary><span style="font-size: 10px; background-color: black; padding: 5px; border-radius: 5px; color: white;">layers</span><br></summary>
+    <textarea id="layer1" oninput="updateCube()">drrrr|drrrr|drrrr|drrrr|drrrr</textarea>
     <textarea id="layer2" oninput="updateCube()">eeeee|eeeee|eeeee|eeeee|eeeee</textarea>
     <textarea id="layer3" oninput="updateCube()">eeeee|eeeee|eeeee|eeeee|eeeee</textarea>
     <textarea id="layer4" oninput="updateCube()">eeeee|eeeee|eeeee|eeeee|eeeee</textarea>
     <textarea id="layer5" oninput="updateCube()">eeeee|eeeee|eeeee|eeeee|eeeee</textarea>
+  </details>
   </div>
 
   <div id="cube-container">
     <div id="cube"></div>
   </div>
-
   <div id="controls">
+    <details>
+  <summary><span style="font-size: 10px; background-color: black; padding: 5px; border-radius: 5px; color: white;">controls</span></summary>
     <button onclick="resetCube()"><span style="font-size: 15px; color: red; background-color: black; padding: 5px; border-radius: 5px;">reset</span></button>
     <button onclick="rotateCube('up')">⥥❏⥥</button>
     <button onclick="snapToInitialView()">❏ <span style="font-size: 10px; background-color: black; padding: 5px; border-radius: 5px;">reset</span></button>
@@ -264,8 +268,8 @@
     <button onclick="zoomIn()">🔎 +</button>
     <button onclick="zoomOut()">🔎 -</button>
     <button onclick="resetZoom()">🔎 <span style="font-size: 10px; background-color: black; padding: 5px; border-radius: 5px;">reset</span></button>
+  </details>
   </div>
-
   <div id="block-reference">
     <div class="block-reference-item">
       <div class="block grass"></div>
