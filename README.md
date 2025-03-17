@@ -3,7 +3,9 @@
 
 After many days* of work, this absolute abomination was created. Also, the jank is **𝘪𝘯𝘵𝘦𝘯𝘥𝘦𝘥**, okay?!  
 * toooootally not just an afternoon *wink wink*
+
 ![Version](https://img.shields.io/badge/ver-1.0-555?style=flat&color=1D1C22)
+
 ---
 
 ## Features
