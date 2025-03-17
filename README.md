@@ -18,6 +18,7 @@ After many days* of work, this absolute abomination was created. Also, the jank 
   highest of grapihc!!1!1!
 
 - **local storage** ☜ fancy
+  
   saves your cube locally so you don’t have to redo everything
   `signs dont save ;)`
 
