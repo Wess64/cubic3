@@ -1,0 +1,450 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <script>
+    // this is REALLY janky but
+    // its for a good reason :3
+    //
+    // and yes i used a <script>
+    // tag just for this
+    //
+    // anyway if you wanna change
+    // the title for whatever rea-
+    // son go ahead
+    const pageTitle = "Cubical³";
+  </script>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title></title>
+  <style>
+    .door input[type="checkbox"] {
+      display: none;
+    }
+
+    .door label {
+      display: inline-block;
+      width: 20px;
+      height: 20px;
+      background-color: #211f10;
+      cursor: pointer;
+      position: relative;
+      border-style: none double none double;
+      border-width: 5px;
+      border: none;
+    }
+
+    .door input[type="checkbox"]:checked + label {
+      background: linear-gradient(to left, #211f10 33%, transparent 33%);
+    }
+
+    body {
+      margin: 0;
+      overflow: hidden;
+      background-color: #87CEEB;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      font-family: 'Courier New', monospace;
+    }
+
+    #cube-container {
+      perspective: 1000px;
+      transform-style: preserve-3d;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%) scale(1);
+      transition: transform 0.5s ease;
+    }
+
+    #cube {
+      position: relative;
+      transform-style: preserve-3d;
+      transform: rotateX(-30deg) rotateY(-45deg);
+      transition: transform 0.5s ease;
+    }
+
+    .layer {
+      position: absolute;
+      display: grid;
+      grid-template-columns: repeat(5, 20px);
+      grid-template-rows: repeat(5, 20px);
+      gap: 2px;
+      transform-origin: center center;
+    }
+
+    .block {
+      width: 20px;
+      height: 20px;
+      box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.3);
+    }
+
+    .grass {
+      background: linear-gradient(to bottom, green 33%, brown 33%);
+    }
+
+    .dirt {
+      background: brown;
+    }
+
+    .stone {
+      background: gray;
+      background-image: radial-gradient(circle, darkgray 10%, transparent 10%);
+      background-size: 5px 5px;
+    }
+
+    .check {
+      background: transparent;
+      border: none;
+    }
+
+    .spike {
+      background: red;
+      clip-path: polygon(50% 0%, 0% 100%, 100% 100%);
+    }
+
+    .sign {
+      background: gold;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      font-size: 10px;
+      text-align: center;
+    }
+
+    .sign textarea {
+      width: 100%;
+      height: 100%;
+      font-size: 3px;
+      resize: none;
+      border: none;
+      background: transparent;
+      text-align: left;
+      padding: 1px;
+      margin: 0;
+      overflow: hidden;
+      outline: none;
+      color: black;
+    }
+
+    .half-block {
+      background-image: linear-gradient(to bottom, gray 50%, transparent 50%);
+      border: none;
+    }
+
+    .glass {
+      background: white;
+      opacity: 0.5;
+    }
+
+    .wood {
+      background: orange;
+      background-image: linear-gradient(to right, brown 10%, transparent 10%);
+      background-size: 5px 5px;
+    }
+
+    .empty {
+      background: transparent;
+      border: 1px solid transparent;
+    }
+
+    #editor {
+      position: absolute;
+      top: 20px;
+      left: 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      max-height: 80vh;
+      overflow-y: scroll;
+      padding-right: 10px;
+    }
+
+    textarea {
+      width: 150px;
+      height: 80px;
+      font-family: 'Courier New', monospace;
+      font-size: 14px;
+      background: rgba(255, 255, 255, 0.8);
+      border: 1px solid #000;
+      padding: 5px;
+    }
+
+    #controls {
+      position: absolute;
+      bottom: 20px;
+      text-align: center;
+    }
+
+    button {
+      padding: 10px;
+      margin: 5px;
+      border-radius: 5px;
+      font-family: 'Courier New', monospace;
+      background: #AAA;
+      color: white;
+      border: none;
+      cursor: pointer;
+      box-shadow: 5px 5px 5px rgba(0, 0, 0, 0.3);
+    }
+
+    button:hover {
+      background: #BBB;
+    }
+
+    button:disabled {
+      background: #ccc;
+      cursor: not-allowed;
+    }
+
+    #block-reference {
+      position: absolute;
+      top: 20px;
+      right: 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      background: rgba(255, 255, 255, 0.8);
+      padding: 10px;
+      box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.3);
+      font-family: 'Arial Unicode MS', 'Segoe UI Symbol', sans-serif;
+    }
+
+    #block-reference.hidden {
+      display: none;
+    }
+
+    .block-reference-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .block-reference-item .block {
+      width: 20px;
+      height: 20px;
+      animation: spin 5s linear infinite;
+    }
+
+    @keyframes spin {
+      from { transform: rotateZ(0deg); }
+      to { transform: rotateZ(360deg); }
+    }
+  </style>
+</head>
+<body>
+  <div id="editor">
+    <textarea id="layer1" oninput="updateCube()">drrrr|drrrr|drrrr|drrrr|drrrr</textarea>
+    <textarea id="layer2" oninput="updateCube()">eeeee|eeeee|eeeee|eeeee|eeeee</textarea>
+    <textarea id="layer3" oninput="updateCube()">eeeee|eeeee|eeeee|eeeee|eeeee</textarea>
+    <textarea id="layer4" oninput="updateCube()">eeeee|eeeee|eeeee|eeeee|eeeee</textarea>
+    <textarea id="layer5" oninput="updateCube()">eeeee|eeeee|eeeee|eeeee|eeeee</textarea>
+  </div>
+
+  <div id="cube-container">
+    <div id="cube"></div>
+  </div>
+
+  <div id="controls">
+    <button onclick="resetCube()"><span style="font-size: 15px; color: red; background-color: black; padding: 5px; border-radius: 5px;">reset</span></button>
+    <button onclick="rotateCube('up')">⥥❏⥥</button>
+    <button onclick="snapToInitialView()">❏ <span style="font-size: 10px; background-color: black; padding: 5px; border-radius: 5px;">reset</span></button>
+    <br>
+    <button onclick="rotateCube('left')">↤❏</button>
+    <button onclick="rotateCube('down')">⥣❏⥣</button>
+    <button onclick="rotateCube('right')">❏↦</button>
+    <br>
+    <button onclick="toggleBlockReference()"><span style="font-size: 10px; background-color: black; padding: 5px; border-radius: 5px;">block info</span> <sup><sup>toggle</sup></sup></button>
+    <br>
+    <button onclick="zoomIn()">🔎 +</button>
+    <button onclick="zoomOut()">🔎 -</button>
+    <button onclick="resetZoom()">🔎 <span style="font-size: 10px; background-color: black; padding: 5px; border-radius: 5px;">reset</span></button>
+  </div>
+
+  <div id="block-reference">
+    <div class="block-reference-item">
+      <div class="block grass"></div>
+      <span>ᵍʳᵃˢˢ | g</span>
+    </div>
+    <div class="block-reference-item">
+      <div class="block dirt"></div>
+      <span>ᵈᶦʳᵗ | d</span>
+    </div>
+    <div class="block-reference-item">
+      <div class="block stone"></div>
+      <span>ˢᵗᵒⁿᵉ | s</span>
+    </div>
+    <div class="block-reference-item">
+      <div class="block checkbox"><input type="checkbox" style="width: 110%; height: 110%; position: relative; right: 4px; bottom: 3.5px;"></div>
+      <span>ᶜʰᵉᶜᵏᵇᵒˣ | o</span>
+    </div>
+    <div class="block-reference-item">
+      <div class="block spike"></div>
+      <span>ˢᵖᶦᵏᵉ | p</span>
+    </div>
+    <div class="block-reference-item">
+      <div class="block sign"><textarea style="width: 100%; height: 100%; font-size: 3px; resize: none; border: none; background: transparent; text-align: left; padding: 1px; margin: 0; overflow: hidden; outline: none; color: black; background-color: gray;"></textarea></div>
+      <span>ˢᶦᵍⁿ | c</span>
+    </div>
+    <div class="block-reference-item">
+      <div class="block half-block"></div>
+      <span>ʰᵃˡᶠ⁻ᵇˡᵒᶜᵏ | h</span>
+    </div>
+    <div class="block-reference-item">
+      <div class="block glass"></div>
+      <span>ᵍˡᵃˢˢ | i</span>
+    </div>
+    <div class="block-reference-item">
+      <div class="block wood"></div>
+      <span>ʷᵒᵒᵈ | w</span>
+    </div>
+    <div class="block-reference-item">
+      <div class="block empty"></div>
+      <span>ᵉᵐᵖᵗʸ | e</span>
+    </div>
+    <div class="block-reference-item">
+      <div class="block door"><div class="door"><input type="checkbox" id="meow"><label for="meow"></label></div></div>
+      <span>ᵈᵒᵒʳ | d</span>
+    </div>
+  </div>
+
+  <script>
+    const cubeElement = document.getElementById('cube');
+    const cubeContainer = document.getElementById('cube-container');
+    const editor = document.getElementById('editor');
+    let rotationX = -30;
+    let rotationY = -45;
+    let scale = 1;
+
+    const blockTypes = {
+      'g': 'grass',
+      'd': 'dirt',
+      's': 'stone',
+      'o': 'checkbox',
+      'p': 'spike',
+      'c': 'sign',
+      'h': 'half-block',
+      'i': 'glass',
+      'w': 'wood',
+      'e': 'empty',
+      'd': 'door'
+    };
+
+    let cube = JSON.parse(localStorage.getItem('cube')) || [
+      ['e', 'e', 'e', 'e', 'e'],
+      ['e', 'e', 'e', 'e', 'e'],
+      ['e', 'e', 'e', 'e', 'e'],
+      ['e', 'e', 'e', 'e', 'e'],
+      ['e', 'e', 'e', 'e', 'e']
+    ];
+
+    function initializeTextAreas() {
+      const layers = ['layer1', 'layer2', 'layer3', 'layer4', 'layer5'];
+      layers.forEach((layerId, z) => {
+        const textarea = document.getElementById(layerId);
+        textarea.value = cube[z].map(row => row.join('')).join('|');
+      });
+    }
+
+    function updateCube() {
+      const layers = ['layer1', 'layer2', 'layer3', 'layer4', 'layer5'];
+      cube = layers.map(layerId => {
+        const text = document.getElementById(layerId).value;
+        const rows = text.split('|');
+        return rows.map(row => row.split(''));
+      });
+      localStorage.setItem('cube', JSON.stringify(cube));
+      renderCube();
+    }
+
+    function renderCube() {
+      cubeElement.innerHTML = '';
+      cube.forEach((layer, z) => {
+        const layerElement = document.createElement('div');
+        layerElement.className = 'layer';
+        layerElement.style.transform = `translateZ(${z * 25 - 50}px)`;
+        layer.forEach((row, y) => {
+          row.forEach((cell, x) => {
+            const block = document.createElement('div');
+            block.className = `block ${blockTypes[cell]}`;
+            if (cell === 'c') {
+              block.innerHTML = '<textarea style="border: none; background-color: gray;"></textarea>';
+            }
+            if (cell === 'o') {
+              block.innerHTML = '<input type="checkbox" style="width: 110%; height: 110%; position: relative; right: 4px; bottom: 3.5px;">';
+            }
+            if (cell === 'd') {
+              const randomId = Math.floor(Math.random() * 1000000);
+              block.innerHTML = `<div class="door"><input type="checkbox" id="door-${randomId}"><label for="door-${randomId}"></label></div>`;
+            }
+            layerElement.appendChild(block);
+          });
+        });
+        cubeElement.appendChild(layerElement);
+      });
+    }
+
+    function rotateCube(direction) {
+      switch (direction) {
+        case 'left': rotationY -= 15; break;
+        case 'right': rotationY += 15; break;
+        case 'up': rotationX -= 15; break;
+        case 'down': rotationX += 15; break;
+      }
+      cubeElement.style.transform = `rotateX(${rotationX}deg) rotateY(${rotationY}deg)`;
+    }
+
+    function resetCube() {
+      if (confirm('this is gonna reset the cube!!! :⦅ ')) {
+        const layers = ['layer1', 'layer2', 'layer3', 'layer4', 'layer5'];
+        layers.forEach(layerId => {
+          const textarea = document.getElementById(layerId);
+          textarea.value = 'eeeee|eeeee|eeeee|eeeee|eeeee';
+        });
+        updateCube();
+      }
+    }
+
+    function snapToInitialView() {
+      rotationX = -45;
+      rotationY = 45;
+      scale = 1;
+      cubeElement.style.transform = `rotateX(${rotationX}deg) rotateY(${rotationY}deg)`;
+      cubeContainer.style.transform = `translate(-50%, -50%) scale(${scale})`;
+    }
+
+    function toggleBlockReference() {
+      const blockReference = document.getElementById('block-reference');
+      blockReference.classList.toggle('hidden');
+    }
+
+    function zoomIn() {
+      scale += 0.1;
+      cubeContainer.style.transform = `translate(-50%, -50%) scale(${scale})`;
+    }
+
+    function zoomOut() {
+      scale -= 0.1;
+      cubeContainer.style.transform = `translate(-50%, -50%) scale(${scale})`;
+    }
+
+    function resetZoom() {
+      scale = 1;
+      cubeContainer.style.transform = `translate(-50%, -50%) scale(${scale})`;
+    }
+
+    // Prevent default behaviors like double-tap zoom
+    document.querySelectorAll('button').forEach(button => {
+      button.style.touchAction = 'manipulation';
+    });
+
+    initializeTextAreas();
+    renderCube();
+    snapToInitialView();
+  </script>
+</body>
+</html>
