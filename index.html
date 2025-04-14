@@ -74,14 +74,13 @@
       display: grid;
       grid-template-columns: repeat(5, 20px);
       grid-template-rows: repeat(5, 20px);
-      gap: 2px;
+      gap: none;
       transform-origin: center center;
     }
 
     .block {
       width: 20px;
       height: 20px;
-      box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.3);
     }
 
     .grass {
@@ -104,7 +103,7 @@
     }
 
     .spike {
-      background: red;
+      background: gray;
       clip-path: polygon(50% 0%, 0% 100%, 100% 100%);
     }
 
@@ -113,22 +112,22 @@
       display: flex;
       justify-content: center;
       align-items: center;
-      font-size: 10px;
+      font-size: .5px;
       text-align: center;
     }
 
     .sign textarea {
-      width: 100%;
+      width: 200%;
       height: 100%;
-      font-size: 3px;
-      resize: none;
+      font-size: .5px;
+      resize: both;
       border: none;
       background: transparent;
       text-align: left;
       padding: 1px;
       margin: 0;
-      overflow: hidden;
       outline: none;
+      z-index: 900;
       color: black;
     }
 
@@ -228,12 +227,12 @@
     .block-reference-item .block {
       width: 20px;
       height: 20px;
-      animation: spin 5s linear infinite;
+      animation: spin 10s linear infinite;
     }
 
     @keyframes spin {
-      from { transform: rotateZ(0deg); }
-      to { transform: rotateZ(360deg); }
+      from { transform: rotateX(0deg) rotateY(0deg) rotateZ(0deg); }
+      to { transform: rotateX(0deg) rotateY(0deg) rotateZ(360deg); }
     }
   </style>
 </head>
@@ -313,7 +312,7 @@
     </div>
     <div class="block-reference-item">
       <div class="block door"><div class="door"><input type="checkbox" id="meow"><label for="meow"></label></div></div>
-      <span>ᵈᵒᵒʳ | d</span>
+      <span>ᵈᵒᵒʳ | j</span>
     </div>
   </div>
 
@@ -336,7 +335,7 @@
       'i': 'glass',
       'w': 'wood',
       'e': 'empty',
-      'd': 'door'
+      'j': 'door'
     };
 
     let cube = JSON.parse(localStorage.getItem('cube')) || [
@@ -382,7 +381,7 @@
             if (cell === 'o') {
               block.innerHTML = '<input type="checkbox" style="width: 110%; height: 110%; position: relative; right: 4px; bottom: 3.5px;">';
             }
-            if (cell === 'd') {
+            if (cell === 'j') {
               const randomId = Math.floor(Math.random() * 1000000);
               block.innerHTML = `<div class="door"><input type="checkbox" id="door-${randomId}"><label for="door-${randomId}"></label></div>`;
             }
@@ -441,8 +440,6 @@
       scale = 1;
       cubeContainer.style.transform = `translate(-50%, -50%) scale(${scale})`;
     }
-
-    // Prevent default behaviors like double-tap zoom
     document.querySelectorAll('button').forEach(button => {
       button.style.touchAction = 'manipulation';
     });
